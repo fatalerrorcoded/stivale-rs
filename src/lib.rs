@@ -24,7 +24,7 @@ struct StivaleStructureInner {
     memory_map_addr: u64,
     memory_map_entries: u64,
     framebuffer: FramebufferInfo,
-    rdsp: u64,
+    rsdp: u64,
     module_count: u64,
     modules: u64,
     epoch: u64,
@@ -40,8 +40,8 @@ impl StivaleStructure {
         &unsafe { &*self.inner }.framebuffer
     }
     
-    pub fn rdsp(&self) -> usize {
-        unsafe { &*self.inner }.rdsp as usize
+    pub fn rsdp(&self) -> usize {
+        unsafe { &*self.inner }.rsdp as usize
     }
 
     pub fn epoch(&self) -> u64 {
