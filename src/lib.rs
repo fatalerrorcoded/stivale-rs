@@ -1,10 +1,12 @@
 #![no_std]
+#![feature(const_fn)]
+#![feature(const_raw_ptr_to_usize_cast)]
 
 #[macro_use]
 extern crate bitflags;
 
-pub mod flags;
-pub use flags::StivaleFlags;
+pub mod header;
+pub use header::{StivaleHeader, StivaleHeaderFlags};
 
 pub mod framebuffer;
 pub use framebuffer::FramebufferInfo;
@@ -12,6 +14,12 @@ pub use framebuffer::FramebufferInfo;
 pub unsafe fn load(address: usize) -> StivaleStructure {
     let inner = &*(address as *const StivaleStructureInner);
     StivaleStructure { inner }
+}
+
+bitflags! {
+    pub struct StivaleFlags: u64 {
+        const BIOS_BOOT = 0x1;
+    }
 }
 
 pub struct StivaleStructure {
