@@ -1,6 +1,4 @@
 #![no_std]
-#![feature(const_fn)]
-#![feature(const_raw_ptr_to_usize_cast)]
 
 #[macro_use]
 extern crate bitflags;
