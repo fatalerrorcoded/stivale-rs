@@ -10,6 +10,7 @@ pub mod framebuffer;
 pub use framebuffer::FramebufferInfo;
 
 pub mod memory;
+use memory::MemoryMapIter;
 
 pub unsafe fn load(address: usize) -> StivaleStructure {
     let inner = &*(address as *const StivaleStructureInner);
@@ -40,6 +41,10 @@ struct StivaleStructureInner {
 }
 
 impl StivaleStructure {
+    fn inner(&self) -> &StivaleStructureInner {
+        unsafe { &*self.inner }
+    }
+
     pub fn cmdline(&self) -> *const u8 {
         self.inner().cmdline as *const u8
     }
@@ -60,7 +65,7 @@ impl StivaleStructure {
         self.inner().flags
     }
 
-    fn inner(&self) -> &StivaleStructureInner {
-        unsafe { &*self.inner }
+    pub fn memory_iter(&self) -> MemoryMapIter {
+        unsafe { MemoryMapIter::build(self.inner().memory_map_addr, self.inner().memory_map_entries) }
     }
 }
