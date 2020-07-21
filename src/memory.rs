@@ -12,7 +12,7 @@ pub enum MemoryMapEntryType {
 }
 
 #[repr(packed)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct MemoryMapEntry {
     base: u64,
     length: u64,
