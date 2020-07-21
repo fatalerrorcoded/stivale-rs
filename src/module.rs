@@ -63,7 +63,7 @@ pub struct ModuleIter<'a> {
     next: *const Module,
     curr: u64,
     length: u64,
-    _phantom: PhantomData<&'a Module>
+    _phantom: PhantomData<&'a Module>,
 }
 
 impl ModuleIter<'_> {
@@ -72,7 +72,7 @@ impl ModuleIter<'_> {
             next: addr as *const Module,
             curr: 0,
             length,
-            _phantom: PhantomData::default()
+            _phantom: PhantomData::default(),
         }
     }
 }

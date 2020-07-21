@@ -31,7 +31,7 @@ impl FramebufferInfo {
     pub fn pitch(&self) -> u16 {
         self.pitch
     }
-    
+
     pub fn bpp(&self) -> u16 {
         self.bpp
     }

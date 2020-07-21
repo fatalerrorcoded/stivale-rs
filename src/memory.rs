@@ -43,7 +43,7 @@ pub struct MemoryMapIter<'a> {
     addr: *const MemoryMapEntry,
     curr: u64,
     length: u64,
-    _phantom: PhantomData<&'a MemoryMapEntry>
+    _phantom: PhantomData<&'a MemoryMapEntry>,
 }
 
 impl MemoryMapIter<'_> {
@@ -52,7 +52,7 @@ impl MemoryMapIter<'_> {
             addr: addr as *const MemoryMapEntry,
             curr: 0,
             length,
-            _phantom: PhantomData::default()
+            _phantom: PhantomData::default(),
         }
     }
 }

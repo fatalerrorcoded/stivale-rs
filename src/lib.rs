@@ -54,7 +54,7 @@ impl StivaleStructure {
     pub fn framebuffer(&self) -> &FramebufferInfo {
         &self.inner().framebuffer
     }
-    
+
     pub fn rsdp(&self) -> usize {
         self.inner().rsdp as usize
     }
@@ -68,7 +68,12 @@ impl StivaleStructure {
     }
 
     pub fn memory_map_iter(&self) -> MemoryMapIter {
-        unsafe { MemoryMapIter::build(self.inner().memory_map_addr, self.inner().memory_map_entries) }
+        unsafe {
+            MemoryMapIter::build(
+                self.inner().memory_map_addr,
+                self.inner().memory_map_entries,
+            )
+        }
     }
 
     pub fn module_iter(&self) -> ModuleIter {
