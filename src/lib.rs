@@ -9,6 +9,8 @@ pub use header::{StivaleHeader, StivaleHeaderFlags};
 pub mod framebuffer;
 pub use framebuffer::FramebufferInfo;
 
+pub mod memory;
+
 pub unsafe fn load(address: usize) -> StivaleStructure {
     let inner = &*(address as *const StivaleStructureInner);
     StivaleStructure { inner }
