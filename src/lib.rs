@@ -39,22 +39,26 @@ struct StivaleStructureInner {
 
 impl StivaleStructure {
     pub fn cmdline(&self) -> *const u8 {
-        unsafe { &*self.inner }.cmdline as *const u8
+        self.inner().cmdline as *const u8
     }
 
     pub fn framebuffer(&self) -> &FramebufferInfo {
-        &unsafe { &*self.inner }.framebuffer
+        &self.inner().framebuffer
     }
     
     pub fn rsdp(&self) -> usize {
-        unsafe { &*self.inner }.rsdp as usize
+        self.inner().rsdp as usize
     }
 
     pub fn epoch(&self) -> u64 {
-        unsafe { &*self.inner }.epoch
+        self.inner().epoch
     }
 
     pub fn flags(&self) -> StivaleFlags {
-        unsafe { &*self.inner }.flags
+        self.inner().flags
+    }
+
+    fn inner(&self) -> &StivaleStructureInner {
+        unsafe { &*self.inner }
     }
 }
