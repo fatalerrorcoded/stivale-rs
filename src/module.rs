@@ -1,6 +1,7 @@
 use core::fmt;
 use core::marker::PhantomData;
 
+/// A module info struct
 #[repr(packed)]
 pub struct Module {
     start: u64,
@@ -23,18 +24,24 @@ impl fmt::Debug for Module {
 }
 
 impl Module {
+    /// Get the address where the module starts
     pub fn start_address(&self) -> u64 {
         self.start
     }
 
+    /// Get the address where the module ends
     pub fn end_address(&self) -> u64 {
         self.end
     }
 
+    /// Get the size of the module
+    /// 
+    /// Identical to `module.start_address() + module.end_address()`
     pub fn size(&self) -> u64 {
         self.end - self.start
     }
 
+    /// Get the string passed to the module by the bootloader, if any
     pub fn string(&self) -> Option<&str> {
         use core::{slice, str};
         if self.string[0] == 0 {
@@ -44,6 +51,7 @@ impl Module {
             while strlen < 128 && self.string[strlen] != 0 {
                 strlen += 1;
             }
+
             unsafe {
                 Some(str::from_utf8_unchecked(slice::from_raw_parts(
                     (&self.string[0]) as *const u8,
@@ -58,6 +66,7 @@ impl Module {
     }
 }
 
+/// An iterator over all the loaded modules
 #[derive(Clone, Debug)]
 pub struct ModuleIter<'a> {
     next: *const Module,

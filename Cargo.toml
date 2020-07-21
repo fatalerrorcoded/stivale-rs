@@ -1,10 +1,13 @@
 [package]
 name = "stivale"
+description = "A crate for parsing qloader2 and tomatboot's stivale structures"
 version = "0.1.0"
-authors = ["Martin Löffler <git@fatalerrorcoded.eu>"]
+authors = ["Martin Löffler <me@fatalerrorcoded.eu>"]
+license = "MIT"
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/fatalerrorcoded/stivale-rs"
+categories = ["no-std"]
 
 [dependencies]
 bitflags = "1.2.1"
