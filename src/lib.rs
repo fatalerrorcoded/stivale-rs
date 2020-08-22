@@ -1,7 +1,14 @@
 #![no_std]
+#![feature(const_fn)]
 #![warn(clippy::all)]
 
 //! A crate for parsing qloader2 and tomatboot's stivale2 structures
+//! 
+//! The `header` module contains a header struct and tags for letting a bootloader know
+//! that a kernel is stivale2 compliant
+//! 
+//! `StivaleStructure` is loaded with `load`, with an address that's passed in RDI on x86_64
+//! (the first function parameter on an `extern "C" fn`)
 
 #[cfg(not(target_arch = "x86_64"))]
 compile_error!("This crate only supports the x86_64 architecture");
@@ -11,6 +18,9 @@ compile_error!("This crate only supports 64-bit architectures");
 
 #[macro_use]
 extern crate bitflags;
+
+pub mod header;
+pub use header::*;
 
 pub mod framebuffer;
 pub mod rsdp;
@@ -76,7 +86,7 @@ pub unsafe fn load(address: usize) -> StivaleStructure {
     StivaleStructure { inner }
 }
 
-/// The stivale2 structure
+/// The stivale2 structure containing all the tags passed by the bootloader
 pub struct StivaleStructure {
     inner: *const StivaleStructureInner,
 }

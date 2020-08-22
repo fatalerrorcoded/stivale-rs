@@ -55,6 +55,7 @@ impl MemoryMapEntry {
 }
 
 /// A memory map tag provided by the bootloader
+#[repr(packed)]
 pub struct MemoryMapTag {
     _identifier: u64,
     _next: u64,

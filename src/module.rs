@@ -47,6 +47,7 @@ impl Module {
 }
 
 /// A module tag describing all the modules
+#[repr(packed)]
 pub struct ModuleTag {
     _identifier: u64,
     _next: u64,
