@@ -1,0 +1,150 @@
+#![no_std]
+#![warn(clippy::all)]
+
+//! A crate for parsing qloader2 and tomatboot's stivale2 structures
+
+#[cfg(not(target_arch = "x86_64"))]
+compile_error!("This crate only supports the x86_64 architecture");
+
+#[cfg(not(target_pointer_width = "64"))]
+compile_error!("This crate only supports 64-bit architectures");
+
+#[macro_use]
+extern crate bitflags;
+
+pub mod framebuffer;
+pub mod rsdp;
+pub mod epoch;
+pub mod firmware;
+
+use framebuffer::FramebufferTag;
+use rsdp::RSDPTag;
+use epoch::EpochTag;
+use firmware::FirmwareTag;
+
+pub mod memory;
+pub mod module;
+
+use memory::MemoryMapTag;
+use module::ModuleTag;
+
+pub(crate) fn string_from_u8(data: &[u8]) -> Option<&str> {
+    use core::{slice, str};
+    if data[0] == 0 {
+        None
+    } else {
+        let mut strlen = 0;
+        while strlen < data.len() && data[strlen] != 0 {
+            strlen += 1;
+        }
+
+        unsafe {
+            Some(str::from_utf8_unchecked(slice::from_raw_parts(
+                (&data[0]) as *const u8,
+                strlen,
+            )))
+        }
+    }
+}
+
+/// Load the stivale2 structure from an address
+///
+/// The structure pointer is passed in the EDI register
+///
+/// # Safety
+/// This function will cause undefined behavior when a non-stivale2 compliant
+/// bootloader boots the kernel
+/// 
+/// This can be avoided by creating a custom entry point that's not the
+/// ELF entry point, and setting that in the stivale2 header
+/// 
+/// # Examples
+///
+/// ```ignore
+/// let mut stivale_struct_ptr: u64 = 0;
+/// unsafe { asm!("mov $2, %rdi" : "=r"(stivale_struct_ptr)) };
+/// let stivale_struct = unsafe { stivale::load(stivale_struct_ptr as usize) };
+/// ```
+///
+/// ```ignore
+/// fn kernel_main(stivale_struct_ptr: usize) {
+///     let stivale_struct = unsafe { stivale::load(stivale_struct_ptr) };
+/// }
+/// ```
+pub unsafe fn load(address: usize) -> StivaleStructure {
+    let inner = &*(address as *const StivaleStructureInner);
+    StivaleStructure { inner }
+}
+
+/// The stivale2 structure
+pub struct StivaleStructure {
+    inner: *const StivaleStructureInner,
+}
+
+#[repr(packed)]
+struct StivaleStructureInner {
+    bootloader_brand: [u8; 64],
+    bootloader_version: [u8; 64],
+    tags: u64,
+}
+
+impl StivaleStructure {
+    fn inner(&self) -> &StivaleStructureInner {
+        unsafe { &*self.inner }
+    }
+
+    fn get_tag(&self, identifier: u64) -> Option<u64> {
+        let mut next: *const EmptyStivaleTag = self.inner().tags as *const EmptyStivaleTag;
+        while !next.is_null() {
+            let tag = unsafe { &*next };
+            if tag.identifier == identifier { return Some(next as u64); }
+            next = tag.next as *const EmptyStivaleTag;
+        }
+        None
+    }
+
+    /// Get the bootloader brand that booted the kernel, if any
+    pub fn bootloader_brand(&self) -> Option<&str> {
+        string_from_u8(&self.inner().bootloader_brand)
+    }
+
+    /// Get the bootloader version, if any
+    pub fn bootloader_version(&self) -> Option<&str> {
+        string_from_u8(&self.inner().bootloader_version)
+    }
+
+    /// Get the video framebuffer info tag
+    pub fn framebuffer(&self) -> Option<&FramebufferTag> {
+        self.get_tag(0x506461d2950408fa).map(|tag| unsafe { &*(tag as *const FramebufferTag) })
+    }
+
+    /// Get the ACPI RSDP structure pointer
+    pub fn rsdp(&self) -> Option<&RSDPTag> {
+        self.get_tag(0x9e1786930a375e78).map(|tag| unsafe { &*(tag as *const RSDPTag) })
+    }
+
+    /// Get the current UNIX epoch during boot
+    pub fn epoch(&self) -> Option<&EpochTag> {
+        self.get_tag(0x566a7bed888e1407).map(|tag| unsafe { &*(tag as *const EpochTag) })
+    }
+
+    /// Get the firmware tag passed by the bootloader
+    pub fn firmware(&self) -> Option<&FirmwareTag> {
+        self.get_tag(0x359d837855e3858c).map(|tag| unsafe { &*(tag as *const FirmwareTag) })
+    }
+
+    /// Get the memory map tag
+    pub fn memory_map(&self) -> Option<&MemoryMapTag> {
+        self.get_tag(0x2187f79e8612de07).map(|tag| unsafe { &*(tag as *const MemoryMapTag) })
+    }
+
+    /// Get the module tag
+    pub fn module(&self) -> Option<&ModuleTag> {
+        self.get_tag(0x4b6fe466aade04ce).map(|tag| unsafe { &*(tag as *const ModuleTag) })
+    }
+}
+
+struct EmptyStivaleTag {
+    identifier: u64,
+    next: u64,
+}
