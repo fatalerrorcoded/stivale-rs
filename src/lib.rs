@@ -19,7 +19,9 @@ compile_error!("This crate only supports 64-bit architectures");
 #[macro_use]
 extern crate bitflags;
 
+#[cfg(feature = "header")]
 pub mod header;
+#[cfg(feature = "header")]
 pub use header::*;
 
 pub mod framebuffer;
