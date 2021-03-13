@@ -12,3 +12,9 @@ categories = ["no-std"]
 
 [dependencies]
 bitflags = "1.2.1"
+
+[features]
+default = ["header"]
+
+# enables or disables the use of the header module
+header = []
