@@ -1,5 +1,5 @@
 #![no_std]
-#![feature(const_fn)]
+#![feature(const_fn_fn_ptr_basics)]
 #![warn(clippy::all)]
 
 //! A crate for parsing qloader2 and tomatboot's stivale2 structures
